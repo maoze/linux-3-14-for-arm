@@ -89,10 +89,115 @@ ENTRY(stext)
 	bl	__hyp_stub_install
 #endif
 	@ ensure svc mode and all interrupts masked
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='E'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='t'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='e'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =' '
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='k'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='e'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='e'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='l'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r0
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r1
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r2
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
 	safe_svcmode_maskall r9
 
 	mrc	p15, 0, r9, c0, c0		@ get processor id
 	bl	__lookup_processor_type		@ r5=procinfo r9=cpuid
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='p'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='o'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='c'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r5
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='c'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='p'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='u'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r9
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
 	movs	r10, r5				@ invalid processor (r5=0)?
  THUMB( it	eq )		@ force fixup-able long branch encoding
 	beq	__error_p			@ yes, error 'p'
@@ -105,6 +210,26 @@ ENTRY(stext)
 	blo	__error_lpae			@ only classic page table format
 #endif
 
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='x'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='i'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='p'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
 #ifndef CONFIG_XIP_KERNEL
 	adr	r3, 2f
 	ldmia	r3, {r4, r8}
@@ -114,19 +239,119 @@ ENTRY(stext)
 	ldr	r8, =PLAT_PHYS_OFFSET		@ always constant in this case
 #endif
 
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='v'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='e'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='t'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
 	/*
 	 * r1 = machine no, r2 = atags or dtb,
 	 * r8 = phys_offset, r9 = cpuid, r10 = procinfo
 	 */
 	bl	__vet_atags
 #ifdef CONFIG_SMP_ON_UP
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='s'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='m'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='p'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
 	bl	__fixup_smp
 #endif
 #ifdef CONFIG_ARM_PATCH_PHYS_VIRT
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='p'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='v'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='t'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
 	bl	__fixup_pv_table
 #endif
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='p'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='g'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='t'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
 	bl	__create_page_tables
 
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='m'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='m'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='s'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
 	/*
 	 * The following calls CPU specific code in a position independent
 	 * manner.  See arch/arm/mm/proc-*.S for details.  r10 = base of
@@ -702,3 +927,62 @@ __pv_offset:
 #endif
 
 #include "head-common.S"
+
+
+#if 1
+asm_print_register:
+	ldr	r1, =0x7f005000
+	mov	r2, #0x8
+	mov	r3, #28
+
+wait_for_ready:
+	ldr	r4, [r1, #0x10]
+	tst	r4, #0x2
+	beq	wait_for_ready
+
+	mov	r4, r0, lsr r3
+	and	r4, #0xf
+	cmp	r4, #9
+	bls	digit_ch
+	add	r4, #0x7
+digit_ch:
+	add	r4, #0x30
+
+	str	r4, [r1, #0x20]
+
+	sub	r3, r3, #4
+	subs	r2, r2, #1
+	bne	wait_for_ready
+
+wait_for_ready2:
+	ldr	r4, [r1, #0x10]
+	tst	r4, #0x2
+	beq	wait_for_ready2
+
+	mov	r4, #0x0d
+	str	r4, [r1, #0x20]
+
+wait_for_ready3:
+	ldr	r4, [r1, #0x10]
+	tst	r4, #0x2
+	beq	wait_for_ready3
+
+	mov	r4, #0x0a
+	str	r4, [r1, #0x20]
+
+	mov	pc, lr
+#endif
+
+#if 1
+asm_print_char:
+	ldr	r1, =0x7f005000
+
+wait_for_ready_char:
+	ldr	r2, [r1, #0x10]
+	tst	r2, #0x2
+	beq	wait_for_ready_char
+
+	str	r0, [r1, #0x20]
+
+	mov	pc, lr
+#endif
