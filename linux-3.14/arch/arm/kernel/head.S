@@ -78,6 +78,7 @@
 
 	__HEAD
 ENTRY(stext)
+	bl	asm_print_all_register
  ARM_BE8(setend	be )			@ ensure we are in BE8 mode
 
  THUMB(	adr	r9, BSYM(1f)	)	@ Kernel is always entered in ARM.
@@ -90,6 +91,7 @@ ENTRY(stext)
 #endif
 	@ ensure svc mode and all interrupts masked
 
+	bl	asm_print_all_register
 	stmfd	sp!, {r0-r2, lr}
 	ldr	r0, ='E'
 	bl	asm_print_char
@@ -160,8 +162,11 @@ ENTRY(stext)
 	ldmfd	sp!, {r0-r4, lr}
 	safe_svcmode_maskall r9
 
+	bl	asm_print_all_register
 	mrc	p15, 0, r9, c0, c0		@ get processor id
+	bl	asm_print_all_register
 	bl	__lookup_processor_type		@ r5=procinfo r9=cpuid
+	bl	asm_print_all_register
 	stmfd	sp!, {r0-r2, lr}
 	ldr	r0, ='p'
 	bl	asm_print_char
@@ -198,10 +203,12 @@ ENTRY(stext)
 	mov	r0, r9
 	bl	asm_print_register
 	ldmfd	sp!, {r0-r4, lr}
+	bl	asm_print_all_register
 	movs	r10, r5				@ invalid processor (r5=0)?
  THUMB( it	eq )		@ force fixup-able long branch encoding
 	beq	__error_p			@ yes, error 'p'
 
+	bl	asm_print_all_register
 #ifdef CONFIG_ARM_LPAE
 	mrc	p15, 0, r3, c0, c1, 4		@ read ID_MMFR0
 	and	r3, r3, #0xf			@ extract VMSA support
@@ -210,6 +217,16 @@ ENTRY(stext)
 	blo	__error_lpae			@ only classic page table format
 #endif
 
+	bl	asm_print_all_register
+#ifndef CONFIG_XIP_KERNEL
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='o'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
 	stmfd	sp!, {r0-r2, lr}
 	ldr	r0, ='x'
 	bl	asm_print_char
@@ -230,6 +247,28 @@ ENTRY(stext)
 	ldr	r0, ='\n'
 	bl	asm_print_char
 	ldmfd	sp!, {r0-r2, lr}
+#else
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='x'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='i'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='p'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+#endif
 #ifndef CONFIG_XIP_KERNEL
 	adr	r3, 2f
 	ldmia	r3, {r4, r8}
@@ -238,6 +277,7 @@ ENTRY(stext)
 #else
 	ldr	r8, =PLAT_PHYS_OFFSET		@ always constant in this case
 #endif
+	bl	asm_print_all_register
 
 	stmfd	sp!, {r0-r2, lr}
 	ldr	r0, ='v'
@@ -264,6 +304,7 @@ ENTRY(stext)
 	 * r8 = phys_offset, r9 = cpuid, r10 = procinfo
 	 */
 	bl	__vet_atags
+	bl	asm_print_all_register
 #ifdef CONFIG_SMP_ON_UP
 	stmfd	sp!, {r0-r2, lr}
 	ldr	r0, ='s'
@@ -286,6 +327,7 @@ ENTRY(stext)
 	bl	asm_print_char
 	ldmfd	sp!, {r0-r2, lr}
 	bl	__fixup_smp
+	bl	asm_print_all_register
 #endif
 #ifdef CONFIG_ARM_PATCH_PHYS_VIRT
 	stmfd	sp!, {r0-r2, lr}
@@ -308,6 +350,7 @@ ENTRY(stext)
 	ldr	r0, ='\n'
 	bl	asm_print_char
 	ldmfd	sp!, {r0-r2, lr}
+	bl	asm_print_all_register
 	bl	__fixup_pv_table
 #endif
 	stmfd	sp!, {r0-r2, lr}
@@ -332,6 +375,7 @@ ENTRY(stext)
 	ldmfd	sp!, {r0-r2, lr}
 	bl	__create_page_tables
 
+	bl	asm_print_all_register
 	stmfd	sp!, {r0-r2, lr}
 	ldr	r0, ='m'
 	bl	asm_print_char
@@ -366,6 +410,7 @@ ENTRY(stext)
  ARM(	add	pc, r10, #PROCINFO_INITFUNC	)
  THUMB(	add	r12, r10, #PROCINFO_INITFUNC	)
  THUMB(	mov	pc, r12				)
+	bl	asm_print_all_register
 1:	b	__enable_mmu
 ENDPROC(stext)
 	.ltorg
@@ -666,6 +711,55 @@ __enable_mmu:
 	mcr	p15, 0, r5, c3, c0, 0		@ load domain access register
 	mcr	p15, 0, r4, c2, c0, 0		@ load page table pointer
 #endif
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='E'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='a'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='b'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='l'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='e'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =' '
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='M'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='M'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='U'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	bl	asm_print_all_register
 	b	__turn_mmu_on
 ENDPROC(__enable_mmu)
 
@@ -928,6 +1022,324 @@ __pv_offset:
 
 #include "head-common.S"
 
+#if 1
+asm_print_all_register:
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='A'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='L'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='L'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =' '
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='S'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='t'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='a'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='t'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='0'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r0
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='1'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r1
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='2'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r2
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='3'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r3
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='4'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r4
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='5'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r5
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='6'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r6
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='7'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r7
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='8'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r8
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='9'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r9
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='1'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='1'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r10
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='1'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='1'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r11
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='1'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='2'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r12
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='s'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='p'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r13
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='l'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r14
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='p'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='c'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =':'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r4, lr}
+	mov	r0, r15
+	bl	asm_print_register
+	ldmfd	sp!, {r0-r4, lr}
+
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='A'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='L'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='L'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, =' '
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='E'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='d'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\r'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+	stmfd	sp!, {r0-r2, lr}
+	ldr	r0, ='\n'
+	bl	asm_print_char
+	ldmfd	sp!, {r0-r2, lr}
+
+	mov pc, lr
+#endif
 
 #if 1
 asm_print_register:
